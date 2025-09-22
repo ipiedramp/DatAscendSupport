@@ -1,8 +1,8 @@
-name: Notify Google Chat on Issue Created
+name: Notify Google Chat on Issue Events
 
 on:
   issues:
-    types: [opened] # 👈 Solo cuando se crea un nuevo issue
+    types: [opened, edited, closed]
 
 jobs:
   notify:
@@ -10,12 +10,23 @@ jobs:
     steps:
       - name: Send message to Google Chat
         run: |
+          EVENT="${{ github.event.action }}"
+          TITLE="${{ github.event.issue.title }}"
+          AUTHOR="${{ github.actor }}"
+          URL="${{ github.event.issue.html_url }}"
+          REPO="${{ github.repository }}"
+
+          if [ "$EVENT" = "opened" ]; then
+            MSG="✅ New Issue created in *$REPO*%0A👉 Title: $TITLE%0A✍️ Author: $AUTHOR%0A🔗 Link: $URL"
+          elif [ "$EVENT" = "edited" ]; then
+            MSG="🔄 Issue updated in *$REPO*%0A👉 Title: $TITLE%0A✍️ Author: $AUTHOR%0A🔗 Link: $URL"
+          elif [ "$EVENT" = "closed" ]; then
+            MSG="🛑 Issue closed in *$REPO*%0A👉 Title: $TITLE%0A✍️ Closed by: $AUTHOR%0A🔗 Link: $URL"
+          else
+            MSG="ℹ️ Issue event ($EVENT) in *$REPO*%0A👉 Title: $TITLE%0A✍️ Author: $AUTHOR%0A🔗 Link: $URL"
+          fi
+
           curl -X POST \
             -H 'Content-Type: application/json' \
-            -d "{
-              \"text\": \"🐞 New Issue Created in *${{ github.repository }}*\\n
-              👉 Title: ${{ github.event.issue.title }}\\n
-              ✍️ Author: ${{ github.actor }}\\n
-              🔗 Link: ${{ github.event.issue.html_url }}\"
-            }" \
+            -d "{\"text\": \"$MSG\"}" \
             "${{ secrets.GOOGLE_CHAT_WEBHOOK }}"
