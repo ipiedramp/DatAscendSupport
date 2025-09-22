@@ -10,23 +10,23 @@ jobs:
     steps:
       - name: Send message to Google Chat
         run: |
-          EVENT="${{ github.event.action }}"
-          TITLE="${{ github.event.issue.title }}"
-          AUTHOR="${{ github.actor }}"
-          URL="${{ github.event.issue.html_url }}"
-          REPO="${{ github.repository }}"
-
-          if [ "$EVENT" = "opened" ]; then
-            MSG="✅ New Issue created in *$REPO*%0A👉 Title: $TITLE%0A✍️ Author: $AUTHOR%0A🔗 Link: $URL"
-          elif [ "$EVENT" = "edited" ]; then
-            MSG="🔄 Issue updated in *$REPO*%0A👉 Title: $TITLE%0A✍️ Author: $AUTHOR%0A🔗 Link: $URL"
-          elif [ "$EVENT" = "closed" ]; then
-            MSG="🛑 Issue closed in *$REPO*%0A👉 Title: $TITLE%0A✍️ Closed by: $AUTHOR%0A🔗 Link: $URL"
-          else
-            MSG="ℹ️ Issue event ($EVENT) in *$REPO*%0A👉 Title: $TITLE%0A✍️ Author: $AUTHOR%0A🔗 Link: $URL"
-          fi
-
-          curl -X POST \
-            -H 'Content-Type: application/json' \
-            -d "{\"text\": \"$MSG\"}" \
-            "${{ secrets.GOOGLE_CHAT_WEBHOOK }}"
+            EVENT="${{ github.event.action }}"
+            TITLE="${{ github.event.issue.title }}"
+            AUTHOR="${{ github.actor }}"
+            URL="${{ github.event.issue.html_url }}"
+            REPO="${{ github.repository }}"
+        
+            if [ "$EVENT" = "opened" ]; then
+              MSG="✅ *New Issue created in* $REPO\n👉 *Title:* $TITLE\n✍️ *Author:* $AUTHOR\n🔗 [View Issue]($URL)"
+            elif [ "$EVENT" = "edited" ]; then
+              MSG="🔄 *Issue updated in* $REPO\n👉 *Title:* $TITLE\n✍️ *Author:* $AUTHOR\n🔗 [View Issue]($URL)"
+            elif [ "$EVENT" = "closed" ]; then
+              MSG="🛑 *Issue closed in* $REPO\n👉 *Title:* $TITLE\n✍️ *Closed by:* $AUTHOR\n🔗 [View Issue]($URL)"
+            else
+              MSG="ℹ️ *Issue event ($EVENT) in* $REPO\n👉 *Title:* $TITLE\n✍️ *Author:* $AUTHOR\n🔗 [View Issue]($URL)"
+            fi
+        
+            curl -X POST \
+              -H 'Content-Type: application/json' \
+              -d "{\"text\": \"$MSG\"}" \
+              "${{ secrets.GOOGLE_CHAT_WEBHOOK }}"
