@@ -2,7 +2,7 @@ name: Notify Google Chat on Issue Events
 
 on:
   issues:
-    types: [opened, edited, closed]
+    types: [opened, edited, closed, reopened, deleted]
 
 jobs:
   notify:
